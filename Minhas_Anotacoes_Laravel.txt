@@ -1,0 +1,274 @@
+Criando uma rota
+	routes > web.php
+		-> https://laravel.com/docs/5.8/routing
+		Route::get($uri, $callback);
+		Route::post($uri, $callback);
+		Route::put($uri, $callback);
+		Route::patch($uri, $callback);
+		Route::delete($uri, $callback);
+		Route::options($uri, $callback);
+
+	Exemplos:
+
+		//Chama o método listarSeries encontrado na classe SeriesController
+			Route::get("/series", "SeriesController@listarSeries");
+		//Chama o método inicio encontrado na classe Pasta\TesteController (com namespace)
+			Route::get("/ola", "Pasta\TesteController@inicio");
+
+Nomeando rotas
+
+	Route::get("/series", "SeriesController@listarSeries")->name("listar_series");
+	No html: 
+		href="{{ route("listar_series")}}"
+	No controller: 
+		return redirect()->route("listar_series");
+	Com parametros:
+		Route::get("/teste/{id}", "TesteController@teste")->name("profile");
+		return redirect()->route("profile", ["id" => 1]);
+
+Modelo MVC 
+
+	Controllers ficam na pasta app/Http/Controllers
+
+	Models ficam na raiz da pasta app/
+
+	Views ficam na pasta resources/views/
+
+	php artisan make:model ModelName -m
+
+Lidando com Views
+	-> https://laravel.com/docs/5.8/blade
+	As views são localizadas na pasta resources/views
+	view('nomeDoarquivo');
+	view('pasta.nomeDoArquivo');
+	Ex.: view('series/index');
+
+	Utilizar o blade
+		@extends("layout")
+
+		@section("cabecalho")
+		Séries
+		@endsection
+
+		@foreach($ts as $t)	
+			sadsadsad
+		@enforeach
+Models
+	Accessors and Mutators
+	Ex.:
+	class Serie extends Model{
+		protected $fillable = ["nome", "estado"];
+
+		//Get
+		public function getNomeAttribute():string{
+			return strtoupper($this->nome);
+		}
+		//Set
+		public function setNomeAttribute($nome):string{
+			return $this->attributes["nome"] = strtoupper($nome);
+		}
+
+		//Exemplo Get booleano onde bd armazena 1 ou 0
+		public function getEstadoAttribute($estado):bool{
+			return $estado;
+		}
+
+	}
+
+
+			
+Controllers
+	php artisan make:controller NameController
+Lidando com requisições
+	->https://laravel.com/docs/5.8/requests
+	use Illuminate\Http\Request;
+
+	Request $request;
+	echo $request->url();
+	//Mostra os parametros querystring
+	var_dump($request->query() );
+	$id = $request->query("id");
+	$nome = $request->query("nome");
+	echo $id;
+	echo $nome;
+
+	$request->only(['email', 'password']);
+	$request->except(['email']);
+
+Utilizando Migrations
+	->https://laravel.com/docs/5.8/migrations
+	php artisan make:migration nome_da_migracao
+	php artisan migrate
+		
+Sessões
+	$request->session()
+		->flash(
+			"mensagem",
+			"Série removida com sucesso"
+		); ou put()
+	$mensagem = $request->session()->get("mensagem");
+    	
+
+		
+
+Validação de regras em formulario
+	//Dentro da pasta "Http", terá surgido uma nova pasta "Requests"
+	> php artisan make:request SeriesFormRequest
+
+	public function authorize () {
+		return true;
+	}
+
+	public function rules () {
+		return [
+			'nome' => 'required|min:3'
+		];
+	}
+
+	public function messages (){
+		return [
+			'nome.required' => 'O campo nome é obrigatório',
+			'nome.min' => 'O campo nome precisa ter pelo menos três caracteres'
+		];
+	}
+
+	Utilizando nos controllers: SeriesFormRequest $request
+
+	=>Mais informações: https://laravel.com/docs/5.7/validation
+
+Transações
+
+	DB::beginTransaction();
+		...
+	DB::commit();
+
+Eloquent
+	$fillable;
+
+	$appends; - para atributos extras
+	Ex.:
+	protected $appends = ['link'];
+	public function getLinkAttribute():string{
+			return [
+				'nome_link' => 'Teste' . $this->id,
+				'link' => '/api/teste/' . $this->id
+			];
+				
+	}
+
+	//Um elemento
+		->first();	
+	//Um array
+		->get();
+	//Com Paginacao
+		->paginate()
+	 
+	/*$series = Serie::whereRaw("1 = 1")
+		->orderBy('nome')->get(); */
+
+	$series = Serie::all();
+
+	 $serie->temporadas = Temporada::query()
+                ->where('serie_id', $serie->serie_id)
+                ->orderBy('numero')->get();  
+	//Paginacao
+		Precisa utilizar os atributos 'page'e 'per_page' na url (url?page=2&per_page=5)
+	1) Com Query
+		$offset = ('page' - 1) * 'per_page';
+		Model::query()->offset( $offset )->limit('per_page')->get();
+	2) Com o metodo paginate ou muda na classe do Model (protected $perPage= 5)
+		Model::paginate('per_page');
+		//Por padrao sao 15, caso nao tenha se definido na url o 'per_page'
+
+Criando Constantes  no Laravel
+	> Criar na pasta config um arquivo constants.php
+	> Criar o array de constantes
+		return [
+			'options' => [
+				'app_name' => 'controle-series',
+
+			]
+		];
+	Para Acessá-las
+		Config::get('constants.options');
+	// or if you want a specific one
+		Config::get('constants.options.app_name');
+
+Javascript e CSS 
+
+	For example, you have a css file yourapp.css and a javascript file yourapp.js, they need to be located in public/css and public/js directories respectively, so their file path look like this:
+		public/css/yourapp.css
+		public/js/yourapp.js
+	Then in your blade template file, in resources/views/app.blade.php, include the css and js files like this
+		<link rel="stylesheet" href="{{URL::asset('css/yourapp.css')}}">
+		<script type="text/javascript" src="{{URL::asset('js/yourapp.js')}}"></script>
+
+Collections
+	$a->elemntos->count();
+	$a->elemntos->sum();
+	$a->elemntos->contains();
+	->filter(muito util)
+	 ...
+	> https://laravel.com/docs/5.8/collections
+
+Login e Usuario
+	Laravel < 6
+		> php artisan make:auth
+	Laravel >= 6
+		> composer require laravel/ui --dev
+		> php artisan ui bootstrap --auth
+		> php artisan migrate
+	
+	Ver EntrarController.php, RegistrarController.php, web.php
+
+Middlewares
+	Uma especie de filtro de uma requisição executado antes ou depois do controller
+	> php artisan make:middleware Autenticador
+	> Kernel.php e adicionar o nome do middleware no array de $routeMiddleware
+
+	Ver o middleware Authenticate
+
+	Proteger as nossas rotas
+		1- if (!Auth::check()) {
+			echo "Não autenticado";
+			exit();
+		}
+
+		2- Route::get('/series', 'SeriesController@index')
+			->name('listar_series')
+			->middleware('auth');
+
+		3- public function __construct(){
+			$this->middleware('auth');
+		}
+
+		4-todas as rotas sejam bloqueadas > Kernel.php
+			//$middleware, que informa quais são os tratadores de requisição que serão executados
+			globalmente. Mais para baixo, encontramos $middlewareGroups, 
+			um array que informa quais tratadores serão utilizados no grupo web e no grupo api
+
+		Um botao ou elemento html
+		@auth @endauth -> mostrar somente se user estiver autenticado
+		@guest -> mostrar p visitante
+		
+Hash no Laravel
+	$data['password'] = Hash::make($data['password']);
+
+Testes automatizados
+	> vendor\bin\phpunit (Executar testes)
+	->php artisan make:test TemporadaTeste --unit (Criar testes)
+
+Deploy
+	Devemos ter alguns cuidados na hora do deploy da aplicação
+	O comando composer install é utilizado para baixar todas as dependências do projeto
+	O comando php artisan key:generate gera uma nova chave para criptografar os dados sensíveis
+	No arquivo .env, a propriedade APP_ENV deve ser prod e APP_DEBUG deve ser false
+
+É muito comum associarem o PHP ao servidor web Apache. Porém, essa não é a única 
+opção de servidor - e nem sempre é a melhor. Eu, por exemplo, em projetos nos quais 
+cuido da infraestrutura, gosto de utilizar o Nginx.	Uma questão bastante interessante, 
+e infelizmente pouco implementada, são os servidores de integração contínua. 
+Para se aprofundar mais nesse tema, recomendo fortemente os cursos de DevOps da Alura,
+principal o que aborda Jenkins. Você pode, inclusive, no seu processo de deploy,
+fazer com que o Jenkins rode todos os testes, garantindo que a aplicação esteja 
+funcionando no momento de colocá-la em produção.

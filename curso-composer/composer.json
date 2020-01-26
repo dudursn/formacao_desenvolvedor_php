@@ -1,0 +1,34 @@
+{
+    "name": "dudursn/buscador-cursos",
+    "description": "Projeto que busca os cursos no site da Alura",
+    "type": "library",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "Eduardo Nascimento",
+            "email": "roger.rsn@outlook.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^6.5",
+        "symfony/dom-crawler": "^4.2",
+        "symfony/css-selector": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alura\\BuscadorDeCursos\\": "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "8",
+        "phan/phan": "^2.4"
+    },
+    "scripts":{
+        "tests":"phpunit tests\\TesteBuscadorDeCursos.php",
+        "phan": "phan --allow-polyfill-parser",
+        "check":[
+            "@phan",
+            "@tests"
+        ]
+    }
+}

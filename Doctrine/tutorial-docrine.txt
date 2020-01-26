@@ -1,0 +1,42 @@
+1- Baixar e instalar php versao atual
+2- Baixar e instalar composer
+3- Executar comando "composer require doctrine/orm"
+4- Criar o diretorio raiz "src" do projeto
+5- Colocar em composer.json o autoload:
+    "autoload": {
+        "psr-4": {
+            
+            "nameSpaceDoProjeto\\": "src/"
+            Ex.:"Alura\\Doctrine\\": "src/"
+        }
+    }
+6- Executar o comando "composer dumpautoload"
+
+7- Criar o arquivo cli-config.php para habilitar linha de comando do Doctrine
+    windows -vendor\bin\doctrine.bat ou linux - php vendor\bin\doctrine
+        orm:info                           Show basic information about all mapped entities
+        orm:mapping:describe               Display information about mapped objects
+        orm:schema-tool:create             Processes the schema and either create it directly on EntityManager Storage Connection or generate the SQL output
+        orm:schema-tool:drop               Drop the complete database schema of EntityManager Storage Connection or generate the corresponding SQL output
+        orm:schema-tool:update             Executes (or dumps) the SQL needed to update the database schema to match the current mapping metadata
+
+8- migrations versionamento de bd
+    8.1- composer require doctrine/migrations
+    8.2- Criar pasta Migrations em src/
+    8.3- criar arquivo migrations.php e colocar as configurações
+        return [
+                'name' => 'My Project Migrations',
+                'migrations_namespace' => 'MyProject\Migrations',
+                'table_name' => 'doctrine_migration_versions',
+                'column_name' => 'version',
+                'column_length' => 14,
+                'executed_at_column_name' => 'executed_at',
+                'migrations_directory' => '/data/doctrine/migrations-docs-example/lib/MyProject/Migrations',
+                'all_or_nothing' => true,
+
+    8.4- Linha de comando migrations: 
+        windows e linux - vendor\bin\doctrine-migrations
+            migrations:status       [status] View the status of a set of migrations.
+            migrations:diff         [diff] Generate a migration by comparing your current database to your mapping information.
+            migrations:migrate      [migrate] Execute a migration to a specified version or the latest available version.
+];
