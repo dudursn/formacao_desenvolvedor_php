@@ -1,0 +1,81 @@
+API com Lumen/Laravel
+
+Habilitar o Eloquent
+    No arquivo bootstrapp/app.php descomentar $app->withEloquent();
+
+Criando uma rota
+   
+    $router->get('/series', function(){
+        return [
+            "Grey's Anatomy",
+            "Flash"
+        ];
+    });
+
+    //Grupo de rotas 
+        Fica /api/ para todas as rotas abaixo
+            $router->group(["prefix" => "/api"], function() use($router){
+                $router->get('/series', "SeriesController@index"); - nomedosite/api/series 
+                $router->get('/filmes', "FilmesController@index"); - nomedosite/api/filmes 
+            });
+        Fica /api-futebol/ para todas as rotas abaixo
+         $router->group(["prefix" => "/api-futebol"], function() use($router){
+            $router->get('/times', "TimesController@index"); - nomedosite/api-futebol/times 
+        });
+
+Metodos HTTP
+
+    GET /series - pegar todas
+    GET /series/:id - pegar uma específica
+    POST /series - inserir
+    PUT /series/:id - atualizar
+    DELETE /series/:id - deletar específica
+
+POST
+    Exemplo:
+    Na web.php: $router->post("/series", "SeriesController@store");
+    Nocontroller:
+    public function store(SeriesFormRequest $request, SerieService $serieService){
+	
+        return response()
+            ->json(
+                $serieService->criarSerie(
+                    $request->nome, $request->qtd_temporadas, $request->eps_por_temporada
+                ),
+                201
+            );
+    }
+
+Json Web Tokens (JWT)
+    é um método RCT 7519 padrão da indústria para realizar autenticação entre duas partes por
+    meio de um token assinado que autentica uma requisição web. Esse token é um código em 
+    Base64 que armazena objetos JSON com os dados que permitem a autenticação da requisição.
+
+    > composer require firebase/php-jwt
+
+Autenticacao das rotas no Lumen
+    AuthServiceProvider => metodo boot() 
+        O método realiza a configuração do serviço de autenticação.
+        Buscar usuário, como a gente quiser (o Lumen não vai impor isso) e, tendo buscado, 
+        a gente vai retornar esse usuário; não encontrando, a gente retorna nulo, simples 
+        assim. Se a gente retornar nulo, o Lumen já entende que a autenticação falhou 
+        e vai se virar para mostrar uma mensagem pra gente.
+    
+    
+    Em bootstrap/app.php
+        1) Ativar o middleware de autenticação
+            $app->routeMiddleware([
+                'auth' => App\Http\Middleware\Authenticate::class,
+            ]);
+
+        2) registar aquele provedor de serviços de autenticação
+            $app->register(App\Providers\AuthServiceProvider::class);
+    
+    Por fim, adicionar o middleware, fazer com que as rotas utilizem o middleware ('auth').
+        $router->group(["prefix" => "api", "middleware" => "auth"], function() use($router){
+            ...
+
+    Gerar o token de verificacao (Ver TokenController)
+        Criar uma CONSTANTE com a senha da autenticacao em .env;
+        Funcao gerarToken em TokenController
+        Criar a rota de autenticacao em web.php tipo post
